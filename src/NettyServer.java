@@ -51,8 +51,7 @@ public class NettyServer {
                     @Override
                     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
 
-                        String info = ctx.channel().remoteAddress() + "";
-                        System.out.println("客户端" + info + ":" + msg);
+                        System.out.println("客户端" + ctx.channel().remoteAddress() + ":" + msg);
 
                         JSONObject object = new JSONObject(msg.toString());
                         String type = object.optString("type");
