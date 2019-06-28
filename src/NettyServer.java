@@ -52,9 +52,19 @@ public class NettyServer {
                     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
 
                         System.out.println("客户端" + ctx.channel().remoteAddress() + ":" + msg);
-
                         JSONObject object = new JSONObject(msg.toString());
                         String type = object.optString("type");
+
+                        //处理检查更新请求
+                        if ("check".equals(type)) {
+                            Version version = DBHelper.queryVersion();
+
+                            JSONObject jsonObject = new JSONObject();
+                            jsonObject.put("type", "version");
+                            jsonObject.put("message", version.getVersionCode());
+
+                            ctx.writeAndFlush(jsonObject.toString());
+                        }
 
                         //处理报表请求
                         if ("request".equals(type)) {
@@ -73,7 +83,12 @@ public class NettyServer {
 
                             DBHelper.addUser(name, pass);
                             server.clientChannel.put(name, ctx.channel());
-                            ctx.writeAndFlush("登陆成功");
+
+                            JSONObject jsonObject = new JSONObject();
+                            jsonObject.put("type", "result");
+                            jsonObject.put("message", "登陆成功");
+
+                            ctx.writeAndFlush(jsonObject.toString());
                         }
                         //处理聊天请求
                         if ("chat".equals(type)) {
